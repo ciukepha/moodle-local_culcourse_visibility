@@ -65,24 +65,28 @@ class update_course_visibility extends \core\task\scheduled_task {
         $config = get_config('local_culcourse_visibility');
 
         if ($config->showcourses) {
-            // Get list of courses to update.
-            mtrace("\n  Searching for courses to make visible ...");
-            // If startdate is today and visibility = 0 then set visibility = 1.
-            $select = "visible = 0 AND startdate BETWEEN {$beginofday} AND {$endofday}";
+            // Calculate timestamp for configured days before today to show courses.
+            $daysBeforeToShow = isset($config->daysbeforeshow) ? (int)$config->daysbeforeshow : 7;
+            $showFromDate = strtotime("-{$daysBeforeToShow} days", $beginofday);
+        
+            mtrace("\n  Searching for courses to make visible based on configured settings...");
+            $select = "visible = 0 AND startdate <= {$endofday} AND startdate >= {$showFromDate}";
             if ($showcourses = $DB->get_records_select('course', $select)) {
                 $this->show_courses($showcourses);
             }
         }
-
+        
         if ($config->hidecourses) {
-            // Get list of courses to update.
-            mtrace("\n  Searching for courses to hide ...");
-            // If enddate is today and visibility = 1 then set visibility = 0.
-            $select = "visible = 1 AND enddate BETWEEN {$beginofday} AND {$endofday}";
+            // Calculate timestamp for configured days after today to hide courses.
+            $daysAfterToHide = isset($config->daysafterhide) ? (int)$config->daysafterhide : 30;
+            $hideAfterDate = strtotime("+{$daysAfterToHide} days", $endofday);
+        
+            mtrace("\n  Searching for courses to hide based on configured settings...");
+            $select = "visible = 1 AND enddate < {$hideAfterDate} AND enddate <= {$endofday}";
             if ($hidecourses = $DB->get_records_select('course', $select)) {
                 $this->hide_courses($hidecourses);
             }
-        }
+        }        
 
         if (!$showcourses && !$hidecourses) {
             mtrace("  Nothing to do, except ponder the boundless wonders of the Universe, perhaps. ;-)\n");

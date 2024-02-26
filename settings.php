@@ -39,6 +39,15 @@ if ($hassiteconfig) {
         )
     );
 
+    // Add setting for days before course start date to show courses
+    $settings->add(new admin_setting_configtext(
+        'local_culcourse_visibility/daysbeforeshow',
+        get_string('daysbeforeshow', 'local_culcourse_visibility'),
+        get_string('daysbeforeshow_desc', 'local_culcourse_visibility'),
+        7, // Default value: 7 days
+        PARAM_INT // Type of parameter: integer
+    ));
+
     $settings->add(new admin_setting_configcheckbox(
         'local_culcourse_visibility/hidecourses',
         get_string('hidecourses', 'local_culcourse_visibility'),
@@ -46,5 +55,15 @@ if ($hassiteconfig) {
         0
         )
     );
+
+    // Add setting for days after course end date to hide courses
+    $settings->add(new admin_setting_configtext(
+        'local_culcourse_visibility/daysafterhide',
+        get_string('daysafterhide', 'local_culcourse_visibility'),
+        get_string('daysafterhide_desc', 'local_culcourse_visibility'),
+        30, // Default value: 30 days
+        PARAM_INT // Type of parameter: integer
+    ));
+
 }
 
